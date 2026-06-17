@@ -1,9 +1,14 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { FileText } from 'lucide-react'
+import { useFormStore } from '@/src/store/useFormStore'
 
 export function Navbar() {
+  const router = useRouter()
+  const reset = useFormStore((s) => s.reset)
+
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white">
       <nav className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
@@ -14,12 +19,13 @@ export function Navbar() {
           <span className="text-sm font-semibold text-zinc-800">Form Auto-Filler</span>
         </Link>
 
-        <Link
-          href="/upload"
+        <button
+          type="button"
+          onClick={() => { reset(); router.push('/upload') }}
           className="rounded bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-zinc-700"
         >
           + New
-        </Link>
+        </button>
       </nav>
     </header>
   )

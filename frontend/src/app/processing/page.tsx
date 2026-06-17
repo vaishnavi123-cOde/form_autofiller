@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { RefreshCw } from 'lucide-react'
 import { Navbar } from '@/src/components/Navbar'
 import { Footer } from '@/src/components/Footer'
 import { ProcessingTimeline } from '@/src/components/ProcessingTimeline'
@@ -11,16 +12,13 @@ import { processDocument, mapStructuredDataToFormSchema } from '@/src/services/a
 export default function ProcessingPage() {
   const router = useRouter()
   const { file, filepath, setFormSchema, setProcessingState, processingState } = useFormStore()
-  const startedRef = useRef(false)
+  const [retryCount, setRetryCount] = useState(0)
 
   useEffect(() => {
     if (!file || !filepath) {
       router.push('/upload')
       return
     }
-
-    if (startedRef.current) return
-    startedRef.current = true
 
     const run = async () => {
       try {
@@ -45,7 +43,7 @@ export default function ProcessingPage() {
     }
 
     run()
-  }, [file, filepath, router, setFormSchema, setProcessingState])
+  }, [file, filepath, retryCount])
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -65,8 +63,18 @@ export default function ProcessingPage() {
           </div>
 
           {processingState.error && (
-            <div className="mt-4 rounded border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600">
-              {processingState.error}
+            <div className="mt-4">
+              <div className="rounded border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600">
+                {processingState.error}
+              </div>
+              <button
+                type="button"
+                onClick={() => setRetryCount((c) => c + 1)}
+                className="mt-3 inline-flex items-center gap-1.5 rounded border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 transition-colors hover:bg-zinc-50"
+              >
+                <RefreshCw className="h-3 w-3" />
+                Try Again
+              </button>
             </div>
           )}
         </div>

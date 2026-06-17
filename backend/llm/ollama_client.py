@@ -1,3 +1,4 @@
+import asyncio
 from ollama import chat
 
 from llm.prompts import (
@@ -9,7 +10,7 @@ from llm.parser import (
 )
 
 
-def run_extraction(
+async def run_extraction(
     text: str
 ):
 
@@ -21,14 +22,21 @@ DOCUMENT:
 {text}
 """
 
-    response = chat(
-        model="qwen2.5:1.5b",
-        messages=[
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]
+    loop = asyncio.get_event_loop()
+    response = await asyncio.wait_for(
+        loop.run_in_executor(
+            None,
+            lambda: chat(
+                model="qwen2.5:1.5b",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ]
+            )
+        ),
+        timeout=120
     )
 
     content = response[

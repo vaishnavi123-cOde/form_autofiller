@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState, useRef } from 'react'
+import { useCallback, useState, useRef, useEffect } from 'react'
 import { Upload, FileText, X, AlertCircle, CheckCircle2 } from 'lucide-react'
 import type { UploadedFile } from '@/src/types'
 
@@ -16,7 +16,7 @@ const ACCEPTED_STR = '.pdf,.docx,.png,.jpg,.jpeg'
 const MAX_SIZE = 15 * 1024 * 1024
 
 interface UploadDropzoneProps {
-  onFileSelected: (file: UploadedFile) => void
+  onFileSelected: (file: UploadedFile | null) => void
   currentFile?: UploadedFile | null
 }
 
@@ -24,6 +24,15 @@ export function UploadDropzone({ onFileSelected, currentFile }: UploadDropzonePr
   const [isDragging, setIsDragging] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const previewRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (previewRef.current) {
+        URL.revokeObjectURL(previewRef.current)
+      }
+    }
+  }, [])
 
   const validateFile = useCallback((file: File): UploadedFile | null => {
     if (!ACCEPTED_TYPES.includes(file.type)) {
@@ -35,7 +44,11 @@ export function UploadDropzone({ onFileSelected, currentFile }: UploadDropzonePr
       return null
     }
     setError(null)
+    if (previewRef.current) {
+      URL.revokeObjectURL(previewRef.current)
+    }
     const preview = file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined
+    previewRef.current = preview || null
     return { name: file.name, size: file.size, type: file.type, preview, rawFile: file }
   }, [])
 
@@ -123,7 +136,7 @@ export function UploadDropzone({ onFileSelected, currentFile }: UploadDropzonePr
             </div>
             <button
               type="button"
-              onClick={(e) => { e.stopPropagation(); onFileSelected(null as unknown as UploadedFile) }}
+              onClick={(e) => { e.stopPropagation(); onFileSelected(null) }}
               className="inline-flex items-center gap-1 rounded border border-zinc-200 bg-white px-2.5 py-1 text-xs font-medium text-zinc-500 transition-colors hover:bg-zinc-50"
             >
               <X className="h-3 w-3" />

@@ -17,6 +17,10 @@ def parse_llm_response(
         )
         cleaned = cleaned.strip()
 
+    cleaned = re.sub(
+        r",\s*([}\]])", r"\1", cleaned
+    )
+
     try:
 
         return json.loads(cleaned)

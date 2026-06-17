@@ -1,6 +1,7 @@
 'use client'
 
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import type { AppState, UploadedFile, FormSchema, ProcessingStep } from '@/src/types'
 
 const initialState = {
@@ -15,31 +16,42 @@ const initialState = {
   },
 }
 
-export const useFormStore = create<AppState>((set) => ({
-  ...initialState,
+export const useFormStore = create<AppState>()(
+  persist(
+    (set) => ({
+      ...initialState,
 
-  setFile: (file) => set({ file }),
+      setFile: (file) => set({ file }),
 
-  setFilePath: (filepath) => set({ filepath }),
+      setFilePath: (filepath) => set({ filepath }),
 
-  setFormSchema: (schema) => set({ formSchema: schema }),
+      setFormSchema: (schema) => set({ formSchema: schema }),
 
-  setProcessingState: (partial) =>
-    set((state) => ({
-      processingState: { ...state.processingState, ...partial },
-    })),
+      setProcessingState: (partial) =>
+        set((state) => ({
+          processingState: { ...state.processingState, ...partial },
+        })),
 
-  updateField: (fieldId, value) =>
-    set((state) => ({
-      formSchema: state.formSchema
-        ? {
-            ...state.formSchema,
-            fields: state.formSchema.fields.map((f) =>
-              f.id === fieldId ? { ...f, value } : f,
-            ),
-          }
-        : null,
-    })),
+      updateField: (fieldId, value) =>
+        set((state) => ({
+          formSchema: state.formSchema
+            ? {
+                ...state.formSchema,
+                fields: state.formSchema.fields.map((f) =>
+                  f.id === fieldId ? { ...f, value } : f,
+                ),
+              }
+            : null,
+        })),
 
-  reset: () => set({ ...initialState }),
-}))
+      reset: () => set({ ...initialState }),
+    }),
+    {
+      name: 'form-storage',
+      partialize: (state) => ({
+        filepath: state.filepath,
+        formSchema: state.formSchema,
+      }),
+    },
+  ),
+)
