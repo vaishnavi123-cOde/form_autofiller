@@ -68,6 +68,12 @@ const LABEL_MAP: Record<string, string> = {
   experience: 'Experience',
   linkedin: 'LinkedIn',
   github: 'GitHub',
+  summary: 'Summary',
+  date_of_birth: 'Date of Birth',
+  university: 'University',
+  college: 'College',
+  degree: 'Degree',
+  student_id: 'Student ID',
 }
 
 function keyToLabel(key: string): string {
